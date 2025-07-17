@@ -134,11 +134,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/modules/:category', async (req, res) => {
+  app.get('/api/modules/:idOrCategory', async (req, res) => {
     try {
-      const { category } = req.params;
-      const modules = await storage.getModulesByCategory(category);
-      res.json(modules);
+      const { idOrCategory } = req.params;
+      
+      // Check if it's a numeric ID
+      if (/^\d+$/.test(idOrCategory)) {
+        const moduleId = parseInt(idOrCategory);
+        const module = await storage.getModule(moduleId);
+        if (module) {
+          res.json(module);
+        } else {
+          res.status(404).json({ error: 'Module not found' });
+        }
+      } else {
+        // Treat as category
+        const modules = await storage.getModulesByCategory(idOrCategory);
+        res.json(modules);
+      }
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch modules' });
     }
