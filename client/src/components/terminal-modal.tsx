@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,11 @@ interface TerminalModalProps {
   isOpen: boolean;
   onClose: () => void;
   module: Module | null;
+  output: string[];
+  status: 'idle' | 'running' | 'success' | 'error';
 }
 
-export default function TerminalModal({ isOpen, onClose, module }: TerminalModalProps) {
-  const [output, setOutput] = useState<string[]>([]);
-  const [status, setStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
+export function TerminalModal({ isOpen, onClose, module, output, status }: TerminalModalProps) {
   const [duration, setDuration] = useState<number>(0);
   const { executeModule } = useWebSocket();
 

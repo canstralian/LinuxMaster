@@ -141,7 +141,31 @@ export class MemStorage implements IStorage {
       }
     ];
 
-    defaultModules.forEach(module => {
+    interface Module {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
+  script: string;
+}
+
+interface Activity {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  icon: string;
+  timestamp: Date;
+}
+
+interface InsertActivity {
+  type: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+defaultModules.forEach(module => {
       const newModule: Module = { ...module, id: this.currentModuleId++ };
       this.modules.set(newModule.id, newModule);
     });
@@ -188,6 +212,7 @@ export class MemStorage implements IStorage {
 
   async getModule(id: number): Promise<Module | undefined> {
     return this.modules.get(id);
+  });
   }
 
   async createModule(module: InsertModule): Promise<Module> {
