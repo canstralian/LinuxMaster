@@ -13,18 +13,13 @@ interface TerminalModalProps {
   status: 'idle' | 'running' | 'success' | 'error';
 }
 
-export function TerminalModal({ isOpen, onClose, module, output, status }: TerminalModalProps) {
+function TerminalModal({ isOpen, onClose, module, output, status }: TerminalModalProps) {
   const [duration, setDuration] = useState<number>(0);
   const { executeModule } = useWebSocket();
 
   useEffect(() => {
     if (isOpen && module) {
-      setOutput([]);
-      setStatus('running');
       setDuration(0);
-      
-      // Add initial prompt
-      setOutput([`pi@raspberrypi:~$ ./pimaint.sh --module ${module.name.toLowerCase().replace(/\s+/g, '-')}`]);
       
       const startTime = Date.now();
       const interval = setInterval(() => {
@@ -35,41 +30,8 @@ export function TerminalModal({ isOpen, onClose, module, output, status }: Termi
     }
   }, [isOpen, module]);
 
-  // Listen for WebSocket messages
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const data = JSON.parse(event.data);
-      
-      if (data.type === 'output') {
-        setOutput(prev => [...prev, data.data]);
-      } else if (data.type === 'execution-completed') {
-        setStatus(data.status);
-        setOutput(prev => [...prev, `✓ Module execution completed successfully`]);
-      } else if (data.type === 'error') {
-        setStatus('error');
-        setOutput(prev => [...prev, `✗ Error: ${data.message}`]);
-      }
-    };
-
-    // This would normally be handled by the WebSocket hook
-    // For now, we'll simulate the output
-    if (isOpen && module && status === 'running') {
-      const timer = setTimeout(() => {
-        setOutput(prev => [
-          ...prev,
-          "Initializing PiMaint Module System...",
-          "✓ Loading configuration files",
-          "✓ Checking system permissions",
-          "✓ Validating module dependencies",
-          `Executing ${module.name.toLowerCase()} module...`,
-          "✓ Module execution completed successfully"
-        ]);
-        setStatus('success');
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, module, status]);
+  // WebSocket message handling would be managed by the parent component
+  // This component just displays the output and status passed as props
 
   const handleRunAgain = () => {
     if (module) {
@@ -153,3 +115,5 @@ export function TerminalModal({ isOpen, onClose, module, output, status }: Termi
     </Dialog>
   );
 }
+
+export default TerminalModal;

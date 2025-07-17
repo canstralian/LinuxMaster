@@ -14,6 +14,8 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [terminalStatus, setTerminalStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
   
   const { data: modules = [] } = useQuery<Module[]>({
     queryKey: ['/api/modules'],
@@ -24,6 +26,23 @@ export default function Dashboard() {
   const handleModuleRun = (module: Module) => {
     setSelectedModule(module);
     setTerminalOpen(true);
+    setTerminalStatus('running');
+    setTerminalOutput([`pi@raspberrypi:~$ ./pimaint.sh --module ${module.name.toLowerCase().replace(/\s+/g, '-')}`]);
+    
+    // Simulate module execution
+    setTimeout(() => {
+      setTerminalOutput(prev => [
+        ...prev,
+        "Initializing PiMaint Module System...",
+        "✓ Loading configuration files",
+        "✓ Checking system permissions",
+        "✓ Validating module dependencies",
+        `Executing ${module.name.toLowerCase()} module...`,
+        "✓ Module execution completed successfully"
+      ]);
+      setTerminalStatus('success');
+    }, 2000);
+    
     executeModule(module.id);
   };
 
@@ -110,6 +129,8 @@ export default function Dashboard() {
         isOpen={terminalOpen}
         onClose={() => setTerminalOpen(false)}
         module={selectedModule}
+        output={terminalOutput}
+        status={terminalStatus}
       />
     </div>
   );
