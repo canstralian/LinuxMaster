@@ -10,6 +10,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
     { id: "dashboard", label: "Dashboard", icon: "tachometer-alt" },
     { id: "system", label: "System", icon: "server" },
     { id: "security", label: "Security", icon: "shield-alt" },
+    { id: "automation", label: "Automation", icon: "robot" },
     { id: "network", label: "Network", icon: "network-wired" },
     { id: "terminal", label: "Terminal", icon: "terminal" },
     { id: "logs", label: "Logs", icon: "file-alt" },

@@ -3,10 +3,14 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertExecutionSchema, insertSystemMetricsSchema, insertActivitySchema } from "@shared/schema";
+import { SecurityScanner } from "./security-scanner";
+import { AutomationEngine } from "./automation-engine";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  const securityScanner = new SecurityScanner();
+  const automationEngine = new AutomationEngine();
 
   // WebSocket connection handling
   wss.on('connection', (ws) => {
@@ -164,6 +168,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(activities);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch activities' });
+    }
+  });
+
+  // Security endpoints
+  app.get('/api/security/scan-ports', async (req, res) => {
+    try {
+      const result = await securityScanner.scanOpenPorts();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Port scan failed' });
+    }
+  });
+
+  app.get('/api/security/failed-logins', async (req, res) => {
+    try {
+      const result = await securityScanner.checkFailedLogins();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed login check failed' });
+    }
+  });
+
+  app.get('/api/security/file-integrity', async (req, res) => {
+    try {
+      const result = await securityScanner.checkFileIntegrity();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'File integrity check failed' });
+    }
+  });
+
+  // Automation endpoints
+  app.get('/api/automation/tasks', async (req, res) => {
+    try {
+      const tasks = automationEngine.getScheduledTasks();
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch automation tasks' });
+    }
+  });
+
+  app.post('/api/automation/schedule', async (req, res) => {
+    try {
+      const { id, schedule, moduleId } = req.body;
+      // Schedule module execution
+      automationEngine.scheduleTask(id, schedule, async () => {
+        // Execute module logic here
+        console.log(`Executing scheduled module: ${moduleId}`);
+      });
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to schedule task' });
     }
   });
 

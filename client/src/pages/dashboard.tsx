@@ -4,6 +4,8 @@ import SystemMetrics from "@/components/system-metrics";
 import ModuleCard from "@/components/module-card";
 import RecentActivity from "@/components/recent-activity";
 import TerminalModal from "@/components/terminal-modal";
+import SecurityDashboard from "@/components/security-dashboard";
+import AutomationScheduler from "@/components/automation-scheduler";
 import { useQuery } from "@tanstack/react-query";
 import { useWebSocket } from "@/hooks/use-websocket";
 import type { Module } from "@/lib/types";
@@ -97,6 +99,9 @@ export default function Dashboard() {
               <RecentActivity />
             </>
           )}
+
+          {activeSection === "security" && <SecurityDashboard />}
+          {activeSection === "automation" && <AutomationScheduler />}
         </main>
       </div>
 
